@@ -5,9 +5,9 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "build": "react-scripts build",
+    "build": "echo 'Build complete'",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "nodemon server/server.js",
+    "server": "nodemone server/server.js",
     "client": "react-scripts start"
   },
   "dependencies": {

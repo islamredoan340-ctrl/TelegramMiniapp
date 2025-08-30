@@ -1,28 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>InstaTasker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
-        .header { background: #667eea; color: white; padding: 20px; text-align: center; }
-        .nav { display: flex; justify-content: space-around; padding: 10px; }
-        .content { padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .app { max-width: 400px; margin: 0 auto; background: white; min-height: 100vh; }
+        
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; padding: 20px; text-align: center; 
+        }
+        .user-info h2 { margin-bottom: 10px; }
+        .balance { font-size: 1.3em; font-weight: bold; }
+        
+        .nav { 
+            display: grid; grid-template-columns: repeat(4, 1fr); 
+            background: white; padding: 10px; border-bottom: 2px solid #e0e0e0;
+        }
+        .nav-btn { 
+            background: none; border: none; padding: 12px 8px; 
+            cursor: pointer; font-size: 12px; transition: all 0.3s ease;
+        }
+        .nav-btn.active { color: #667eea; border-bottom: 3px solid #667eea; }
+        .nav-btn:hover { background: #f8f9fa; }
+        
+        .main-content { padding: 20px; min-height: 60vh; }
+        
+        .section { 
+            background: white; border-radius: 15px; padding: 20px; 
+            margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        
+        .task-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; border: 2px solid #e9ecef; border-radius: 10px; 
+            margin-bottom: 10px; transition: all 0.3s ease;
+        }
+        .task-item:hover { border-color: #667eea; transform: translateY(-2px); }
+        
+        .task-btn { 
+            background: #667eea; color: white; border: none; 
+            padding: 10px 15px; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; transition: all 0.3s ease;
+        }
+        .task-btn:hover { background: #5a67d8; transform: scale(1.05); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>InstaTasker</h1>
-        <p>Balance: 343 BANANAS31</p>
+    <div class="app">
+        <div class="header">
+            <div class="user-info">
+                <h2 id="userName">User Name</h2>
+                <div class="balance">Balance: <span id="balance">343</span> BANANAS31</div>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <button class="nav-btn active" onclick="showSection('home')">Home</button>
+            <button class="nav-btn" onclick="showSection('tasks')">Tasks</button>
+            <button class="nav-btn" onclick="showSection('withdraw')">Withdraw</button>
+            <button class="nav-btn" onclick="showSection('profile')">Profile</button>
+        </nav>
+
+        <main class="main-content" id="content">
+            <div class="section">
+                <h2>Welcome to InstaTasker! 🎉</h2>
+                <p>Complete tasks and earn BANANAS31 rewards.</p>
+                <p>Current Balance: <strong>343 BANANAS31</strong></p>
+            </div>
+
+            <div class="section">
+                <h2>Telegram Tasks</h2>
+                <div class="task-item">
+                    <div>
+                        <div style="font-weight: bold">@EARNING25M</div>
+                        <div>Join channel to earn</div>
+                        <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
+                    </div>
+                    <button class="task-btn" onclick="completeTask(1)">Join</button>
+                </div>
+            </div>
+        </main>
     </div>
-    <div class="nav">
-        <button>Home</button>
-        <button>Tasks</button>
-        <button>Withdraw</button>
-    </div>
-    <div class="content">
-        <h2>Welcome to InstaTasker!</h2>
-        <p>Server is running successfully. React app will load soon.</p>
-    </div>
+
+    <script>
+        let userBalance = 343;
+        let currentUser = null;
+
+        // Telegram WebApp initialization
+        function initTelegram() {
+            const tg = window.Telegram?.WebApp;
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                
+                const userData = tg.initDataUnsafe?.user;
+                if (userData) {
+                    currentUser = {
+                        id: userData.id,
+                        firstName: userData.first_name,
+                        lastName: userData.last_name,
+                        username: userData.username
+                    };
+                    document.getElementById('userName').textContent = 
+                        `${userData.first_name} ${userData.last_name || ''}`;
+                }
+            }
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Simple section switching
+            const content = document.getElementById('content');
+            if (section === 'home') {
+                content.innerHTML = 
+                    <div class="section">
+                        <h2>Welcome to InstaTasker! 🎉</h2>
+                        <p>Complete tasks and earn BANANAS31 rewards.</p>
+                        <p>Current Balance: <strong>${userBalance} BANANAS31</strong></p>
+                    </div>
+                ;
+            } else if (section === 'tasks') {
+                content.innerHTML = 
+                    <div class="section">
+                        <h2>Telegram Tasks</h2>
+                        <div class="task-item">
+                            <div>
+                                <div style="font-weight: bold">@EARNING25M</div>
+                                <div>Join channel to earn</div>
+                                <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
+                            </div>
+                            <button class="task-btn" onclick="completeTask(1)">Join</button>
+                        </div>
+                        <div class="task-item">
+                            <div>
+                                <div style="font-weight: bold">@oimbd</div>
+                                <div>Join channel to earn</div>
+                                <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
+                            </div>
+                            <button class="task-btn" onclick="completeTask(2)">Join</button>
+                        </div>
+                    </div>
+                ;
+            }
+        }
+
+        function completeTask(taskId) {
+            userBalance += 1.00;
+            document.getElementById('balance').textContent = userBalance.toFixed(2);
+            alert('Task completed! You earned 1.00 BANANAS31');
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initTelegram();
+        });
+    </script>
 </body>
 </html>

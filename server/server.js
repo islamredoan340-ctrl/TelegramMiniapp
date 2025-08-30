@@ -40,39 +40,12 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Check if build exists, otherwise serve basic HTML
-const buildPath = path.join(__dirname, '../build');
-if (fs.existsSync(buildPath)) {
-    app.use(express.static(buildPath));
-    console.log('Serving React build files');
-} else {
-    console.log('Build folder not found - serving basic HTML');
-}
+// ✅ Static files serve - PUBLIC folder
+app.use(express.static(path.join(__dirname, '../public')));
 
-// Handle all routes
+// ✅ Handle all routes - PUBLIC folder এর index.html serve করুন
 app.get('*', (req, res) => {
-    if (fs.existsSync(buildPath)) {
-        res.sendFile(path.join(buildPath, 'index.html'));
-    } else {
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>InstaTasker</title>
-                <style>
-                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                    h1 { color: #667eea; }
-                </style>
-            </head>
-            <body>
-                <h1>InstaTasker App</h1>
-                <p>Server is running successfully! 🚀</p>
-                <p>React build is in progress...</p>
-                <p><a href="/api/health">Check API Health</a></p>
-            </body>
-            </html>
-        `);
-    }
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
