@@ -10,11 +10,9 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Telegram ID is required' });
     }
 
-    // Check if user exists
     let user = await User.findByTelegramId(id);
     
     if (!user) {
-      // Create new user
       await User.create({ id, first_name, last_name, username });
       user = await User.findByTelegramId(id);
     }
@@ -27,12 +25,11 @@ router.post('/', async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         username: user.username,
-        balance: user.balance,
-        streak: user.streak
+        balance: user.balance || 0,
+        streak: user.streak || 0
       }
     });
   } catch (error) {
-    console.error('Auth error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

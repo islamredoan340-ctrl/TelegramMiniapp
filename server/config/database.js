@@ -9,10 +9,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err);
   } else {
-    console.log('Connected to SQLite database at:', dbPath);
+    console.log('Connected to SQLite database');
     
     db.serialize(() => {
-      // Users table
       db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         telegram_id INTEGER UNIQUE,
@@ -26,7 +25,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
         referral_code TEXT UNIQUE
       )`);
       
-      // Tasks table
       db.run(`CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -36,25 +34,14 @@ const db = new sqlite3.Database(dbPath, (err) => {
         FOREIGN KEY(user_id) REFERENCES users(id)
       )`);
       
-      // Transactions table (new)
       db.run(`CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         type TEXT,
         amount INTEGER,
-        status TEXT,
-        created_at DATE,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-      )`);
-      
-      // Referrals table
-      db.run(`CREATE TABLE IF NOT EXISTS referrals (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        referrer_id INTEGER,
-        referee_id INTEGER,
+        status TEXT DEFAULT 'pending',
         created_at DATE DEFAULT CURRENT_DATE,
-        FOREIGN KEY(referrer_id) REFERENCES users(id),
-        FOREIGN KEY(referee_id) REFERENCES users(id)
+        FOREIGN KEY(user_id) REFERENCES users(id)
       )`);
     });
   }

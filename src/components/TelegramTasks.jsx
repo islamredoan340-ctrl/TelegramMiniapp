@@ -1,22 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const TelegramTasks = ({ onTaskComplete }) => {
-  const tasks = [
+  const [tasks] = useState([
     { id: 1, channel: '@EARNING25M', reward: 1.00, action: 'Join' },
     { id: 2, channel: '@oimbd', reward: 1.00, action: 'Join' },
     { id: 3, channel: '@Bot_income_snt', reward: 1.00, action: 'Join' }
-  ];
+  ]);
 
-  const handleJoinClick = (task) => {
+  const handleTaskClick = (task) => {
     // Open Telegram channel
     window.open(`https://t.me/${task.channel.replace('@', '')}`, '_blank');
     
-    // After 3 seconds, allow verification
+    // After delay, complete task
     setTimeout(() => {
       if (window.confirm('Have you joined the channel?')) {
         onTaskComplete(task.id, task.reward);
       }
-    }, 3000);
+    }, 2000);
   };
 
   return (
@@ -30,14 +30,12 @@ const TelegramTasks = ({ onTaskComplete }) => {
             <div>Join channel to earn</div>
             <div className="task-reward">{task.reward} BANANAS31</div>
           </div>
-          <div>
-            <button 
-              className="task-button"
-              onClick={() => handleJoinClick(task)}
-            >
-              {task.action}
-            </button>
-          </div>
+          <button 
+            className="task-button"
+            onClick={() => handleTaskClick(task)}
+          >
+            {task.action}
+          </button>
         </div>
       ))}
     </div>

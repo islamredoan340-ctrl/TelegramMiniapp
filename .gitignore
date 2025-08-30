@@ -3,3 +3,4 @@ build/
 database.sqlite
 .env
 .DS_Store
+*.log
