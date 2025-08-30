@@ -16,8 +16,6 @@
         .nav-button.active { color: #667eea; border-bottom: 2px solid #667eea; }
         .main-content { padding: 20px; }
         .section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
-        .task-button { background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -42,30 +40,30 @@
                     <h2>Welcome to InstaTasker!</h2>
                     <p>Complete tasks and earn BANANAS31 rewards.</p>
                 </div>
-
-                <div class="section">
-                    <h2>Telegram Tasks</h2>
-                    <div class="task-item">
-                        <div>
-                            <div style="font-weight: bold">@EARNING25M</div>
-                            <div>Join channel to earn</div>
-                            <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
-                        </div>
-                        <button class="task-button">Join</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // সরল JavaScript code
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            console.log('Telegram WebApp initialized');
-        }
+        // Basic functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    alert('Navigation: ' + this.textContent);
+                });
+            });
+
+            // Telegram WebApp initialization
+            const tg = window.Telegram?.WebApp;
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                console.log('Telegram WebApp initialized');
+            }
+        });
     </script>
 </body>
 </html>
