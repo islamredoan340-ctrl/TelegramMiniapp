@@ -13,7 +13,7 @@ const Header = ({ user, balance, onSectionChange, currentSection }) => {
   return (
     <header className="header">
       <div className="user-info">
-        <h2>{user ? `${user.firstName} ${user.lastName || ''}` : 'User'}</h2>
+        <h2>{user ? `${user.firstName} ${user.lastName || ''}` : 'User Name'}</h2>
         <div className="balance">Balance: {balance} BANANAS31</div>
       </div>
       
