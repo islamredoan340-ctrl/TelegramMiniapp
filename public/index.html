@@ -1,96 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InstaTasker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
-        .app { max-width: 400px; margin: 0 auto; background: white; min-height: 100vh; }
-        
-        .header { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; padding: 20px; text-align: center; 
-        }
-        .user-info h2 { margin-bottom: 10px; }
-        .balance { font-size: 1.3em; font-weight: bold; }
-        
-        .nav { 
-            display: grid; grid-template-columns: repeat(4, 1fr); 
-            background: white; padding: 10px; border-bottom: 2px solid #e0e0e0;
-        }
-        .nav-btn { 
-            background: none; border: none; padding: 12px 8px; 
-            cursor: pointer; font-size: 12px; transition: all 0.3s ease;
-        }
-        .nav-btn.active { color: #667eea; border-bottom: 3px solid #667eea; }
-        .nav-btn:hover { background: #f8f9fa; }
-        
-        .main-content { padding: 20px; min-height: 60vh; }
-        
-        .section { 
-            background: white; border-radius: 15px; padding: 20px; 
-            margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
         
-        .task-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; border: 2px solid #e9ecef; border-radius: 10px; 
-            margin-bottom: 10px; transition: all 0.3s ease;
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
         }
-        .task-item:hover { border-color: #667eea; transform: translateY(-2px); }
         
-        .task-btn { 
-            background: #667eea; color: white; border: none; 
-            padding: 10px 15px; border-radius: 8px; cursor: pointer; 
-            font-weight: bold; transition: all 0.3s ease;
+        .app {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
         }
-        .task-btn:hover { background: #5a67d8; transform: scale(1.05); }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .balance {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            background: white;
+            padding: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 12px;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            padding: 8px 5px;
+            cursor: pointer;
+            font-size: 11px;
+            text-align: center;
+        }
+        
+        .nav-button.active {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+        
+        .daily-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .day-box {
+            padding: 12px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .day-box.inactive {
+            background: #6c757d;
+        }
+        
+        .wait-message {
+            background: #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .refer-section {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-channel {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .task-description {
+            color: #666;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        
+        .task-reward {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .task-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #ddd;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
     <div class="app">
+        <!-- Header Section -->
         <div class="header">
-            <div class="user-info">
-                <h2 id="userName">User Name</h2>
-                <div class="balance">Balance: <span id="balance">343</span> BANANAS31</div>
-            </div>
+            <h1 id="userName">Nayem Islam</h1>
+            <div class="balance">Balance: <span id="balance">343</span> BANANAS31</div>
         </div>
         
+        <!-- Navigation -->
         <nav class="nav">
-            <button class="nav-btn active" onclick="showSection('home')">Home</button>
-            <button class="nav-btn" onclick="showSection('tasks')">Tasks</button>
-            <button class="nav-btn" onclick="showSection('withdraw')">Withdraw</button>
-            <button class="nav-btn" onclick="showSection('profile')">Profile</button>
+            <button class="nav-button active">Home</button>
+            <button class="nav-button">Ads Task</button>
+            <button class="nav-button">TG Tasks</button>
+            <button class="nav-button">Refer</button>
+            <button class="nav-button">Withdraw</button>
+            <button class="nav-button">Profile</button>
         </nav>
 
-        <main class="main-content" id="content">
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Daily Check-in Section -->
             <div class="section">
-                <h2>Welcome to InstaTasker! 🎉</h2>
-                <p>Complete tasks and earn BANANAS31 rewards.</p>
-                <p>Current Balance: <strong>343 BANANAS31</strong></p>
+                <h2>Daily Check-in Bonus</h2>
+                <p style="text-align: center; margin-bottom: 15px; color: #666;">
+                    Claim your daily reward and keep your streak!
+                </p>
+                
+                <div class="daily-grid">
+                    <div class="day-box">Day 1</div>
+                    <div class="day-box">Day 2</div>
+                    <div class="day-box">Day 3</div>
+                    <div class="day-box">Day 4</div>
+                    <div class="day-box">Day 5</div>
+                    <div class="day-box">Day 6</div>
+                    <div class="day-box inactive">Day 7</div>
+                    <div class="day-box inactive">Day 15</div>
+                    <div class="day-box inactive">Day 17</div>
+                    <div class="day-box inactive">Day 20</div>
+                </div>
+                
+                <div class="wait-message">
+                    💬 Wait For Next Day
+                </div>
             </div>
 
+            <!-- Referral Section -->
+            <div class="refer-section">
+                <h3>Invite Friends & Earn</h3>
+                <p style="margin: 10px 0; color: #666;">Get 20% of their earnings</p>
+                <button class="task-button" style="background: #28a745;">
+                    Start Referring
+                </button>
+            </div>
+
+            <!-- Telegram Tasks Section -->
             <div class="section">
                 <h2>Telegram Tasks</h2>
+                
                 <div class="task-item">
-                    <div>
-                        <div style="font-weight: bold">@EARNING25M</div>
-                        <div>Join channel to earn</div>
-                        <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
+                    <div class="task-info">
+                        <div class="task-channel">@EARNING25M</div>
+                        <div class="task-description">Join channel to earn</div>
+                        <div class="task-reward">1.00 BANANAS31</div>
                     </div>
-                    <button class="task-btn" onclick="completeTask(1)">Join</button>
+                    <button class="task-button">Join</button>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-info">
+                        <div class="task-channel">@oimbd</div>
+                        <div class="task-description">Join channel to earn</div>
+                        <div class="task-reward">1.00 BANANAS31</div>
+                    </div>
+                    <button class="task-button">Join</button>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-info">
+                        <div class="task-channel">@Bot_income_snt</div>
+                        <div class="task-description">Join channel to earn</div>
+                        <div class="task-reward">1.00 BANANAS31</div>
+                    </div>
+                    <button class="task-button">Join</button>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        let userBalance = 343;
-        let currentUser = null;
-
         // Telegram WebApp initialization
         function initTelegram() {
             const tg = window.Telegram?.WebApp;
@@ -100,64 +266,42 @@
                 
                 const userData = tg.initDataUnsafe?.user;
                 if (userData) {
-                    currentUser = {
-                        id: userData.id,
-                        firstName: userData.first_name,
-                        lastName: userData.last_name,
-                        username: userData.username
-                    };
                     document.getElementById('userName').textContent = 
                         `${userData.first_name} ${userData.last_name || ''}`;
                 }
             }
         }
 
-        function showSection(section) {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
+        // Navigation functionality
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.nav-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Simple alert for navigation
+                alert(`Navigating to: ${this.textContent}`);
             });
-            event.target.classList.add('active');
-            
-            // Simple section switching
-            const content = document.getElementById('content');
-            if (section === 'home') {
-                content.innerHTML = 
-                    <div class="section">
-                        <h2>Welcome to InstaTasker! 🎉</h2>
-                        <p>Complete tasks and earn BANANAS31 rewards.</p>
-                        <p>Current Balance: <strong>${userBalance} BANANAS31</strong></p>
-                    </div>
-                ;
-            } else if (section === 'tasks') {
-                content.innerHTML = 
-                    <div class="section">
-                        <h2>Telegram Tasks</h2>
-                        <div class="task-item">
-                            <div>
-                                <div style="font-weight: bold">@EARNING25M</div>
-                                <div>Join channel to earn</div>
-                                <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
-                            </div>
-                            <button class="task-btn" onclick="completeTask(1)">Join</button>
-                        </div>
-                        <div class="task-item">
-                            <div>
-                                <div style="font-weight: bold">@oimbd</div>
-                                <div>Join channel to earn</div>
-                                <div style="color: green; font-weight: bold">1.00 BANANAS31</div>
-                            </div>
-                            <button class="task-btn" onclick="completeTask(2)">Join</button>
-                        </div>
-                    </div>
-                ;
-            }
-        }
+        });
 
-        function completeTask(taskId) {
-            userBalance += 1.00;
-            document.getElementById('balance').textContent = userBalance.toFixed(2);
-            alert('Task completed! You earned 1.00 BANANAS31');
-        }
+        // Task completion
+        document.querySelectorAll('.task-button').forEach(button => {
+            if (button.textContent === 'Join') {
+                button.addEventListener('click', function() {
+                    const channel = this.parentElement.querySelector('.task-channel').textContent;
+                    window.open(`https://t.me/${channel.replace('@', '')}`, '_blank');
+                    
+                    setTimeout(() => {
+                        if (confirm('Have you joined the channel?')) {
+                            const currentBalance = parseInt(document.getElementById('balance').textContent);
+                            document.getElementById('balance').textContent = currentBalance + 1;
+                            alert('Task completed! You earned 1.00 BANANAS31');
+                        }
+                    }, 2000);
+                });
+            }
+        });
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
