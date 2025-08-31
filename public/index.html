@@ -29,22 +29,45 @@
             flex-direction: column;
         }
         
+        /* Correct Header Style like screenshot */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .header h1 {
-            font-size: 1.4em;
-            margin-bottom: 5px;
-            font-weight: normal;
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
         }
         
         .balance {
-            font-size: 1.2em;
+            font-size: 1em;
+            color: #28a745;
             font-weight: bold;
+        }
+        
+        .profile-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
         }
         
         .main-content {
@@ -150,7 +173,7 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             margin-bottom: 10px;
-            }
+        }
         
         .task-info {
             flex: 1;
@@ -227,10 +250,15 @@
 </head>
 <body>
     <div class="app">
-        <!-- Header Section -->
+        <!-- Correct Header like screenshot -->
         <div class="header">
-            <h1>Nayem Islam</h1>
-            <div class="balance">Balance: 343 BANANAS31</div>
+            <div class="user-info">
+                <div class="user-name">Nayem Islam</div>
+                <div class="balance">Balance: 343 BANANAS31</div>
+            </div>
+            <button class="profile-button">
+                <i class="bi bi-person"></i>
+            </button>
         </div>
 
         <!-- Main Content -->
@@ -259,7 +287,7 @@
                 </div>
             </div>
 
-            <!-- Referral Section -->
+           <!-- Referral Section -->
             <div class="refer-section">
                 <div class="refer-title">Invite Friends & Earn</div>
                 <div class="refer-subtitle">Get 20% of their earnings</div>
@@ -350,12 +378,21 @@
                 
                 const userData = tg.initDataUnsafe?.user;
                 if (userData) {
-                    document.querySelector('.header h1').textContent = 
+                    document.querySelector('.user-name').textContent = 
                         `${userData.first_name} ${userData.last_name || ''}`;
                 }
             }
         }
 
+        // Profile button click
+        document.querySelector('.profile-button').addEventListener('click', function() {
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.nav-button:last-child').classList.add('active');
+            alert('Opening profile section...');
+        });
+        
         // Navigation functionality
         document.querySelectorAll('.nav-button').forEach(button => {
             button.addEventListener('click', function() {
@@ -363,10 +400,6 @@
                     btn.classList.remove('active');
                 });
                 this.classList.add('active');
-                
-                // Show simple message
-                const sectionName = this.textContent.trim();
-                alert(`Navigating to ${sectionName} section`);
             });
         });
 
@@ -375,9 +408,12 @@
             button.addEventListener('click', function() {
                 const channel = this.parentElement.querySelector('.task-channel').textContent;
                 window.open(`https://t.me/${channel.replace('@', '')}`, '_blank');
-
+                
                 setTimeout(() => {
                     if (confirm('Have you joined the channel?')) {
+                        const balanceElement = document.querySelector('.balance');
+                        const currentBalance = parseInt(balanceElement.textContent.split(': ')[1]);
+                        balanceElement.textContent = `Balance: ${currentBalance + 1} BANANAS31`;
                         alert('Task completed! You earned 1.00 BANANAS31');
                     }
                 }, 2000);
