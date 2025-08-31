@@ -1,19 +1,35 @@
-const db = require('../config/database');
+const mongoose = require('mongoose')
 
-class Task {
-  static create(userId, type, reward) {
-    return new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO tasks (user_id, type, completed_at, reward) 
-         VALUES (?, ?, datetime('now'), ?)`,
-        [userId, type, reward],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID });
-        }
-      );
-    });
+const taskSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  reward: {
+    type: Number,
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ['daily', 'hourly', 'telegram'],
+    required: true
+  },
+  link: {
+    type: String,
+    required: true
+  },
+  dailyLimit: {
+    type: Number,
+    default: 1
+  },
+  hourlyLimit: {
+    type: Number,
+    default: 0
   }
-}
+})
 
-module.exports = Task;
+module.exports = mongoose.model('Task', taskSchema)

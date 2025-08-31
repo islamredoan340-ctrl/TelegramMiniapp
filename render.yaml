@@ -1,14 +1,23 @@
 services:
   - type: web
-    name: telegram-mini-app
+    name: instatasker-api
     env: node
     plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm install
+    startCommand: node server/server.js
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: MONGODB_URI
+        fromSecret: MONGODB_URI
+      - key: JWT_SECRET
+        fromSecret: JWT_SECRET
       - key: PORT
-        value: 3001
-      - key: DATABASE_URL
-        value: file:./database.sqlite
+        value: 5000
+
+  - type: web
+    name: instatasker-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://instatasker-api.onrender.com

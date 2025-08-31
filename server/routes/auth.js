@@ -1,37 +1,41 @@
-const express = require('express');
-const User = require('../models/User');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
+const User = require('../models/User')
 
-router.post('/', async (req, res) => {
+// Get user data
+router.get('/:userId', async (req, res) => {
   try {
-    const { id, first_name, last_name, username } = req.body;
-    
-    if (!id) {
-      return res.status(400).json({ error: 'Telegram ID is required' });
-    }
-
-    let user = await User.findByTelegramId(id);
-    
+    const user = await User.findById(req.params.userId)
     if (!user) {
-      await User.create({ id, first_name, last_name, username });
-      user = await User.findByTelegramId(id);
+      return res.status(404).json({ message: 'User not found' })
     }
-
-    res.json({
-      success: true,
-      user: {
-        id: user.id,
-        telegram_id: user.telegram_id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        username: user.username,
-        balance: user.balance || 0,
-        streak: user.streak || 0
-      }
-    });
+    res.json(user)
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: error.message })
   }
-});
+})
 
-module.exports = router;
+// Create new user
+router.post('/register', async (req, res) => {
+  try {
+    const { telegramId, name } = req.body
+    
+    const newUser = new User({
+      telegramId,
+      name,
+      balance: 0,
+      joinedDate: new Date(),
+      totalEarned: 0,
+      currentStreak: 0,
+      tasksDone: 0,
+      referrals: 0
+    })
+    
+    const savedUser = await newUser.save()
+    res.status(201).json(savedUser)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+})
+
+module.exports = router

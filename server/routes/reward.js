@@ -1,32 +1,56 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
+const User = require('../models/User')
 
-// Daily check-in reward
-router.post('/check-in', (req, res) => {
-  const { userId } = req.body;
-  
-  // In a real app, you would:
-  // 1. Check if user already checked in today
-  // 2. Update streak in database
-  // 3. Add reward to user's balance
-  
-  res.json({
-    success: true,
-    reward: 5,
-    streak: 6,
-    message: 'Daily check-in successful'
-  });
-});
+// Claim daily reward
+router.post('/daily', async (req, res) => {
+  try {
+    const { userId } = req.body
+    
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    
+    const today = new Date().toDateString()
+    const lastClaim = user.lastDailyClaim ? new Date(user.lastDailyClaim).toDateString() : null
+    
+    // Check if already claimed today
+    if (lastClaim === today) {
+      return res.status(400).json({ message: 'Daily reward already claimed today' })
+    }
+    
+    // Calculate streak
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    
+    if (lastClaim === yesterday.toDateString()) {
+      user.currentStreak += 1
+    } else {
+      user.currentStreak = 1
+    }
+    
+    // Calculate reward based on streak
+    const baseReward = 10
+    const streakBonus = Math.min(user.currentStreak * 2, 20) // Max bonus of 20
+    const totalReward = baseReward + streakBonus
+    
+    // Update user
+    user.balance += totalReward
+    user.totalEarned += totalReward
+    user.lastDailyClaim = new Date()
+    
+    await user.save()
+    
+    res.json({ 
+      message: 'Daily reward claimed', 
+      reward: totalReward, 
+      newBalance: user.balance,
+      streak: user.currentStreak
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
 
-// Claim referral reward
-router.post('/referral', (req, res) => {
-  const { referrerId, refereeId } = req.body;
-  
-  res.json({
-    success: true,
-    reward: 10,
-    message: 'Referral reward claimed'
-  });
-});
-
-module.exports = router;
+module.exports = router

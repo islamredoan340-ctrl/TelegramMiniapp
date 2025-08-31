@@ -1,45 +1,35 @@
-import React, { useState } from 'react';
+import React from 'react'
 
-const TelegramTasks = ({ onTaskComplete }) => {
-  const [tasks] = useState([
-    { id: 1, channel: '@EARNING25M', reward: 1.00, action: 'Join' },
-    { id: 2, channel: '@oimbd', reward: 1.00, action: 'Join' },
-    { id: 3, channel: '@Bot_income_snt', reward: 1.00, action: 'Join' }
-  ]);
-
-  const handleTaskClick = (task) => {
-    // Open Telegram channel
-    window.open(`https://t.me/${task.channel.replace('@', '')}`, '_blank');
-    
-    // After delay, complete task
-    setTimeout(() => {
-      if (window.confirm('Have you joined the channel?')) {
-        onTaskComplete(task.id, task.reward);
-      }
-    }, 2000);
-  };
-
+const TelegramTasks = ({ userData }) => {
+  const tasks = [
+    { channel: '@EARNING25M', reward: 1.00 },
+    { channel: '@oimbd', reward: 1.00 },
+    { channel: '@Bot_income_snt', reward: 1.00 }
+  ]
+  
   return (
-    <div className="section">
-      <h2>Telegram Tasks</h2>
+    <div className="container">
+      <h2>Nayem Islam</h2>
+      <p>Balance: {userData.balance} BANANAS31</p>
       
-      {tasks.map((task) => (
-        <div key={task.id} className="task-item">
-          <div className="task-info">
-            <div style={{ fontWeight: 'bold' }}>{task.channel}</div>
-            <div>Join channel to earn</div>
-            <div className="task-reward">{task.reward} BANANAS31</div>
+      <div className="section">
+        <h3>Telegram Tasks</h3>
+        
+        {tasks.map((task, index) => (
+          <div key={index} className="telegram-task">
+            <p className="channel-name">{task.channel}</p>
+            <p className="task-description">Join channel to earn</p>
+            <p className="reward">{task.reward} BANANAS31</p>
+            
+            <div className="task-actions">
+              <button className="join-btn">Join</button>
+              <button className="verify-btn">Verify</button>
+            </div>
           </div>
-          <button 
-            className="task-button"
-            onClick={() => handleTaskClick(task)}
-          >
-            {task.action}
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  );
-};
+  )
+}
 
-export default TelegramTasks;
+export default TelegramTasks

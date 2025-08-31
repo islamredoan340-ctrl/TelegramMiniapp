@@ -1,44 +1,53 @@
-const express = require('express');
-const Task = require('../models/Task');
-const User = require('../models/User');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
+const Task = require('../models/Task')
+const User = require('../models/User')
 
-router.get('/telegram', (req, res) => {
-  const tasks = [
-    { id: 1, channel: '@EARNING25M', reward: 1.00 },
-    { id: 2, channel: '@oimbd', reward: 1.00 },
-    { id: 3, channel: '@Bot_income_snt', reward: 1.00 }
-  ];
+// Get all tasks
+router.get('/', async (req, res) => {
+  try {
+    const tasks = await Task.find()
+    res.json(tasks)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
 
-  res.json({ success: true, tasks });
-});
-
+// Complete a task
 router.post('/complete', async (req, res) => {
   try {
-    const { taskId, userId } = req.body;
+    const { userId, taskId } = req.body
     
-    const tasks = [
-      { id: 1, reward: 1.00 },
-      { id: 2, reward: 1.00 },
-      { id: 3, reward: 1.00 }
-    ];
-    
-    const task = tasks.find(t => t.id === taskId);
+    const task = await Task.findById(taskId)
     if (!task) {
-      return res.status(404).json({ error: 'Task not found' });
+      return res.status(404).json({ message: 'Task not found' })
     }
-
-    await Task.create(userId, 'telegram', task.reward);
-    await User.updateBalance(userId, task.reward);
-
-    res.json({
-      success: true,
-      reward: task.reward,
-      message: 'Task completed successfully'
-    });
+    
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    
+    // Check if user already completed this task
+    if (user.completedTasks.includes(taskId)) {
+      return res.status(400).json({ message: 'Task already completed' })
+    }
+    
+    // Update user balance and completed tasks
+    user.balance += task.reward
+    user.totalEarned += task.reward
+    user.tasksDone += 1
+    user.completedTasks.push(taskId)
+    
+    await user.save()
+    
+    res.json({ 
+      message: 'Task completed successfully', 
+      newBalance: user.balance 
+    })
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: error.message })
   }
-});
+})
 
-module.exports = router;
+module.exports = router

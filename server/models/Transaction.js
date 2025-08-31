@@ -1,19 +1,32 @@
-const db = require('../config/database');
+const mongoose = require('mongoose')
 
-class Transaction {
-  static create(userId, type, amount, status = 'pending') {
-    return new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO transactions (user_id, type, amount, status) 
-         VALUES (?, ?, ?, ?)`,
-        [userId, type, amount, status],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID });
-        }
-      );
-    });
+const transactionSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  amount: {
+    type: Number,
+    required: true
+  },
+  address: {
+    type: String,
+    required: true
+  },
+  paymentMethod: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'rejected'],
+    default: 'pending'
+  },
+  date: {
+    type: Date,
+    default: Date.now
   }
-}
+})
 
-module.exports = Transaction;
+module.exports = mongoose.model('Transaction', transactionSchema)

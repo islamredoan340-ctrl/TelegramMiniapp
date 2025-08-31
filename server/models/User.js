@@ -1,44 +1,50 @@
-const db = require('../config/database');
+const mongoose = require('mongoose')
 
-class User {
-  static findByTelegramId(telegramId) {
-    return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM users WHERE telegram_id = ?', [telegramId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+const userSchema = new mongoose.Schema({
+  telegramId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  balance: {
+    type: Number,
+    default: 0
+  },
+  joinedDate: {
+    type: Date,
+    default: Date.now
+  },
+  totalEarned: {
+    type: Number,
+    default: 0
+  },
+  currentStreak: {
+    type: Number,
+    default: 0
+  },
+  tasksDone: {
+    type: Number,
+    default: 0
+  },
+  referrals: {
+    type: Number,
+    default: 0
+  },
+  completedTasks: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Task'
+  }],
+  lastDailyClaim: {
+    type: Date
+  },
+  pendingWithdrawals: {
+    type: Number,
+    default: 0
   }
+})
 
-  static create(userData) {
-    return new Promise((resolve, reject) => {
-      const { id, first_name, last_name, username } = userData;
-      const referralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-      
-      db.run(
-        `INSERT INTO users (telegram_id, first_name, last_name, username, referral_code) 
-         VALUES (?, ?, ?, ?, ?)`,
-        [id, first_name, last_name, username, referralCode],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID });
-        }
-      );
-    });
-  }
-
-  static updateBalance(userId, amount) {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE users SET balance = balance + ? WHERE id = ?',
-        [amount, userId],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ changes: this.changes });
-        }
-      );
-    });
-  }
-}
-
-module.exports = User;
+module.exports = mongoose.model('User', userSchema)

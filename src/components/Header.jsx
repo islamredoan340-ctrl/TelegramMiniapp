@@ -1,35 +1,15 @@
-import React from 'react';
+import React from 'react'
 
-const Header = ({ user, balance, onSectionChange, currentSection }) => {
-  const sections = [
-    { id: 'home', label: 'Home' },
-    { id: 'ads', label: 'Ads Task' },
-    { id: 'tg-tasks', label: 'TG Tasks' },
-    { id: 'refer', label: 'Refer' },
-    { id: 'withdraw', label: 'Withdraw' },
-    { id: 'profile', label: 'Profile' }
-  ];
-
+const Header = ({ userData }) => {
   return (
     <header className="header">
+      <h1>InstaTasker</h1>
       <div className="user-info">
-        <h2>{user ? `${user.firstName} ${user.lastName || ''}` : 'User Name'}</h2>
-        <div className="balance">Balance: {balance} BANANAS31</div>
+        <h2>{userData.name}</h2>
+        <p>Balance: {userData.balance} BANANAS31</p>
       </div>
-      
-      <nav className="nav">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            className={`nav-button ${currentSection === section.id ? 'active' : ''}`}
-            onClick={() => onSectionChange(section.id)}
-          >
-            {section.label}
-          </button>
-        ))}
-      </nav>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header
