@@ -102,29 +102,15 @@
             margin: 15px 0;
         }
         
+        /* NO HIGHLIGHTING - All days same color */
         .day-item {
             padding: 10px 5px;
-            background: #28a745;
+            background: #28a745; /* All days green */
             color: white;
             border-radius: 5px;
             text-align: center;
             font-size: 11px;
             font-weight: bold;
-        }
-        
-        .day-item.current {
-            background: #ffc107;
-            color: #000;
-        }
-        
-        .day-item.completed {
-            background: #28a745;
-            color: white;
-        }
-        
-        .day-item.future {
-            background: #6c757d;
-            color: white;
         }
         
         .checkin-button {
@@ -404,19 +390,15 @@
             loadMonetagSDK();
         }
 
-        // Setup days grid
+        // Setup days grid - NO HIGHLIGHTING
         function setupDays() {
             const daysContainer = document.getElementById('daysContainer');
             const days = [1, 2, 3, 4, 5, 6, 7, 15, 17, 20];
             
-            daysContainer.innerHTML = days.map(day => {
-                let className = 'day-item';
-                if (day === currentDay) className += ' current';
-                else if (day < currentDay) className += ' completed';
-                else className += ' future';
-                
-                return <div class="${className}">Day ${day}</div>;
-            }).join('');
+            // ALL DAYS SAME COLOR - no highlighting
+            daysContainer.innerHTML = days.map(day => 
+                <div class="day-item">Day ${day}</div>
+            ).join('');
         }
 
         // Telegram WebApp initialization
@@ -542,7 +524,6 @@
                 userBalance += 5;
                 document.getElementById('balance').textContent = userBalance;
                 currentDay++;
-                setupDays();
                 
                 // Step 6: Show wait message
                 claimButton.classList.add('hidden');
