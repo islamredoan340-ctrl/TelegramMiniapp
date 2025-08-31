@@ -7,6 +7,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Bootstrap Icons CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='9801281' data-sdk='show_9801281'></script>
     <style>
         * {
             margin: 0;
@@ -121,6 +123,19 @@
             background: #6c757d;
         }
         
+        .checkin-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
         .wait-message {
             background: #ffc107;
             color: #856404;
@@ -133,6 +148,55 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+        }
+        
+        .ad-container {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .ad-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        #monetag-ad-container {
+            width: 100%;
+            min-height: 250px;
+            background: #fff;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ad-timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .complete-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .complete-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
         }
         
         .refer-section {
@@ -203,6 +267,15 @@
             font-size: 18px;
             margin-bottom: 2px;
         }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -211,14 +284,14 @@
         <div class="header">
             <div class="user-info">
                 <div class="user-name">Nayem Islam</div>
-                <div class="balance">Balance: 343 BANANAS31</div>
+                <div class="balance">Balance: <span id="balance">343</span> BANANAS31</div>
             </div>
             <button class="profile-button">
                 <i class="bi bi-person"></i>
             </button>
         </div>
 
-        <!-- Main Content - ONLY Daily Check-in and Referral -->
+        <!-- Main Content -->
         <main class="main-content">
             <!-- Daily Check-in Section -->
             <div class="section">
@@ -238,9 +311,28 @@
                     <div class="day-item future">Day 20</div>
                 </div>
                 
-                <div class="wait-message">
+                <!-- Check-in Button (Visible initially) -->
+                <button class="checkin-button" id="checkinButton">
+                    <i class="bi bi-calendar-check"></i>
+                    Daily Check In
+                </button>
+                
+                <!-- Wait Message (Hidden initially) -->
+                <div class="wait-message hidden" id="waitMessage">
                     <i class="bi bi-clock"></i>
                     Wait For Next Day
+                </div>
+                
+                <!-- Ad Container (Hidden initially) -->
+                <div class="ad-container hidden" id="adContainer">
+                    <div class="ad-title">Watch Ad to Claim Your Reward</div>
+                    <div id="monetag-ad-container">
+                        <div class="loading">Loading advertisement...</div>
+                    </div>
+                    <div class="ad-timer" id="adTimer">Please watch the ad for 30 seconds</div>
+                    <button class="complete-button" id="completeAdButton" disabled>
+                        Complete Ad Viewing
+                    </button>
                 </div>
             </div>
 
@@ -253,8 +345,6 @@
                     Start Referring
                 </button>
             </div>
-
-            <!-- NO Telegram Tasks Section Here -->
         </main>
 
         <!-- Navigation at the BOTTOM -->
@@ -287,6 +377,11 @@
     </div>
 
     <script>
+        let userBalance = 343;
+        let canCheckIn = true;
+        let adCompleted = false;
+        let adTimerInterval;
+
         // Telegram WebApp initialization
         function initTelegram() {
             const tg = window.Telegram?.WebApp;
@@ -302,13 +397,110 @@
             }
         }
 
+        // Initialize Monetag Ads
+        function initMonetagAds() {
+            if (typeof show_9801281 !== 'undefined') {
+                // Monetag SDK is loaded
+                console.log('Monetag SDK loaded successfully');
+            } else {
+                console.log('Monetag SDK not loaded, using fallback');
+                // Fallback ad system
+                const adContainer = document.getElementById('monetag-ad-container');
+                adContainer.innerHTML = 
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">📺</div>
+                        <div style="font-weight: bold; margin-bottom: 10px;">Advertisement</div>
+                        <div style="color: #666;">Please watch this ad to continue</div>
+                    </div>
+                ;
+            }
+        }
+
+        // Daily Check-in System with Real Ads
+        function setupCheckInSystem() {
+            const checkinButton = document.getElementById('checkinButton');
+            const waitMessage = document.getElementById('waitMessage');
+            const adContainer = document.getElementById('adContainer');
+            const adTimer = document.getElementById('adTimer');
+            const completeAdButton = document.getElementById('completeAdButton');
+            const monetagAdContainer = document.getElementById('monetag-ad-container');
+            
+            checkinButton.addEventListener('click', function() {
+                if (canCheckIn) {
+                    // Hide check-in button, show ad
+                    checkinButton.classList.add('hidden');
+                    adContainer.classList.remove('hidden');
+                    
+                    // Load Monetag ad
+                    try {
+                        if (typeof show_9801281 === 'function') {
+                            show_9801281();
+                        }
+                    } catch (error) {
+                        console.log('Error loading Monetag ad:', error);
+                    }
+                    
+                    // Start ad timer
+                    let seconds = 30;
+                    adTimer.textContent = `Please watch the ad for ${seconds} seconds`;
+                    
+                    adTimerInterval = setInterval(() => {
+                        seconds--;
+                        adTimer.textContent = `Please watch the ad for ${seconds} seconds`;
+                        
+                        if (seconds <= 0) {
+                            clearInterval(adTimerInterval);
+                            completeAdButton.disabled = false;
+                            completeAdButton.textContent = 'Claim Reward Now';
+                            adCompleted = true;
+                        }
+                    }, 1000);
+                }
+            });
+            
+            completeAdButton.addEventListener('click', function() {
+                if (adCompleted) {
+                    // Add reward to balance
+                    userBalance += 5;
+                    document.getElementById('balance').textContent = userBalance;
+                    
+                    // Hide ad, show wait message
+                    adContainer.classList.add('hidden');
+                    waitMessage.classList.remove('hidden');
+                    
+                    // Disable check-in for today
+                    canCheckIn = false;
+                    adCompleted = false;
+                    
+                    // Clear timer
+                    clearInterval(adTimerInterval);
+                    
+                    alert('✅ Daily check-in successful! You earned 5 BANANAS31');
+                    
+                    // Save check-in status to localStorage
+                    localStorage.setItem('lastCheckIn', new Date().toDateString());
+                }
+            });
+        }
+
+        // Check if user already checked in today
+        function checkDailyStatus() {
+            const lastCheckIn = localStorage.getItem('lastCheckIn');
+            const today = new Date().toDateString();
+            
+            if (lastCheckIn === today) {
+                canCheckIn = false;
+                document.getElementById('checkinButton').classList.add('hidden');
+                document.getElementById('waitMessage').classList.remove('hidden');
+            }
+        }
+
         // Profile button click
         document.querySelector('.profile-button').addEventListener('click', function() {
             document.querySelectorAll('.nav-button').forEach(btn => {
                 btn.classList.remove('active');
             });
             document.querySelector('.nav-button:last-child').classList.add('active');
-            alert('Opening profile section...');
         });
 
         // Navigation functionality
@@ -318,12 +510,6 @@
                     btn.classList.remove('active');
                 });
                 this.classList.add('active');
-                
-                // Show content based on navigation
-                const section = this.textContent.trim();
-                if (section === 'TG Tasks') {
-                    alert('Telegram Tasks section will open soon');
-                }
             });
         });
 
@@ -335,6 +521,9 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             initTelegram();
+            initMonetagAds();
+            checkDailyStatus();
+            setupCheckInSystem();
         });
     </script>
 </body>
