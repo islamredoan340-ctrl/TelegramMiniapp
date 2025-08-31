@@ -14,9 +14,8 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
-            padding: 0;
         }
         
         .app {
@@ -34,12 +33,13 @@
         }
         
         .header h1 {
-            font-size: 1.5em;
+            font-size: 1.4em;
             margin-bottom: 5px;
+            font-weight: normal;
         }
         
         .balance {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
         }
         
@@ -47,18 +47,19 @@
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             background: white;
-            padding: 10px;
-            border-bottom: 2px solid #e0e0e0;
+            padding: 12px 5px;
+            border-bottom: 1px solid #ddd;
             font-size: 12px;
+            text-align: center;
         }
         
         .nav-button {
             background: none;
             border: none;
-            padding: 8px 5px;
+            padding: 8px 3px;
             cursor: pointer;
             font-size: 11px;
-            text-align: center;
+            color: #333;
         }
         
         .nav-button.active {
@@ -71,54 +72,88 @@
         }
         
         .section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
         }
         
-        .section h2 {
-            color: #333;
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
             margin-bottom: 15px;
+            color: #333;
             text-align: center;
-            font-size: 1.3em;
         }
         
-        .daily-grid {
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .days-container {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
             margin: 15px 0;
         }
         
-        .day-box {
-            padding: 12px 8px;
+        .day-item {
+            padding: 10px 5px;
             background: #28a745;
             color: white;
-            border-radius: 8px;
+            border-radius: 5px;
             text-align: center;
+            font-size: 11px;
             font-weight: bold;
-            font-size: 12px;
         }
         
-        .day-box.inactive {
+        .day-item.current {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .day-item.future {
             background: #6c757d;
         }
         
         .wait-message {
             background: #ffc107;
             color: #856404;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 5px;
             text-align: center;
-            margin: 15px 0;
+            margin: 20px 0;
             font-weight: bold;
         }
         
         .refer-section {
             text-align: center;
-            padding: 15px;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            margin: 20px 0;
+        }
+        
+        .refer-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .refer-subtitle {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .refer-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
         }
         
         .task-item {
@@ -138,17 +173,19 @@
         .task-channel {
             font-weight: bold;
             color: #333;
+            font-size: 14px;
         }
         
         .task-description {
             color: #666;
-            font-size: 0.9em;
-            margin: 5px 0;
+            font-size: 12px;
+            margin: 3px 0;
         }
         
         .task-reward {
             color: #28a745;
             font-weight: bold;
+            font-size: 14px;
         }
         
         .task-button {
@@ -159,6 +196,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 12px;
         }
         
         .divider {
@@ -172,8 +210,8 @@
     <div class="app">
         <!-- Header Section -->
         <div class="header">
-            <h1 id="userName">Nayem Islam</h1>
-            <div class="balance">Balance: <span id="balance">343</span> BANANAS31</div>
+            <h1>Nayem Islam</h1>
+            <div class="balance">Balance: 343 BANANAS31</div>
         </div>
         
         <!-- Navigation -->
@@ -190,41 +228,37 @@
         <main class="main-content">
             <!-- Daily Check-in Section -->
             <div class="section">
-                <h2>Daily Check-in Bonus</h2>
-                <p style="text-align: center; margin-bottom: 15px; color: #666;">
-                    Claim your daily reward and keep your streak!
-                </p>
+                <div class="section-title">Daily Check-in Bonus</div>
+                <div class="section-subtitle">Claim your daily reward and keep your streak!</div>
                 
-                <div class="daily-grid">
-                    <div class="day-box">Day 1</div>
-                    <div class="day-box">Day 2</div>
-                    <div class="day-box">Day 3</div>
-                    <div class="day-box">Day 4</div>
-                    <div class="day-box">Day 5</div>
-                    <div class="day-box">Day 6</div>
-                    <div class="day-box inactive">Day 7</div>
-                    <div class="day-box inactive">Day 15</div>
-                    <div class="day-box inactive">Day 17</div>
-                    <div class="day-box inactive">Day 20</div>
+                <div class="days-container">
+                    <div class="day-item">Day 1</div>
+                    <div class="day-item">Day 2</div>
+                    <div class="day-item">Day 3</div>
+                    <div class="day-item">Day 4</div>
+                    <div class="day-item">Day 5</div>
+                    <div class="day-item current">Day 6</div>
+                    <div class="day-item future">Day 7</div>
+                    <div class="day-item future">Day 15</div>
+                    <div class="day-item future">Day 17</div>
+                    <div class="day-item future">Day 20</div>
                 </div>
                 
                 <div class="wait-message">
-                    💬 Wait For Next Day
+                    🟡 Wait For Next Day
                 </div>
             </div>
 
             <!-- Referral Section -->
             <div class="refer-section">
-                <h3>Invite Friends & Earn</h3>
-                <p style="margin: 10px 0; color: #666;">Get 20% of their earnings</p>
-                <button class="task-button" style="background: #28a745;">
-                    Start Referring
-                </button>
+                <div class="refer-title">Invite Friends & Earn</div>
+                <div class="refer-subtitle">Get 20% of their earnings</div>
+                <button class="refer-button">Start Referring</button>
             </div>
 
             <!-- Telegram Tasks Section -->
             <div class="section">
-                <h2>Telegram Tasks</h2>
+                <div class="section-title">Telegram Tasks</div>
                 
                 <div class="task-item">
                     <div class="task-info">
@@ -266,7 +300,7 @@
                 
                 const userData = tg.initDataUnsafe?.user;
                 if (userData) {
-                    document.getElementById('userName').textContent = 
+                    document.querySelector('.header h1').textContent = 
                         `${userData.first_name} ${userData.last_name || ''}`;
                 }
             }
@@ -279,28 +313,26 @@
                     btn.classList.remove('active');
                 });
                 this.classList.add('active');
-                
-                // Simple alert for navigation
-                alert(`Navigating to: ${this.textContent}`);
             });
         });
 
         // Task completion
         document.querySelectorAll('.task-button').forEach(button => {
-            if (button.textContent === 'Join') {
-                button.addEventListener('click', function() {
-                    const channel = this.parentElement.querySelector('.task-channel').textContent;
-                    window.open(`https://t.me/${channel.replace('@', '')}`, '_blank');
-                    
-                    setTimeout(() => {
-                        if (confirm('Have you joined the channel?')) {
-                            const currentBalance = parseInt(document.getElementById('balance').textContent);
-                            document.getElementById('balance').textContent = currentBalance + 1;
-                            alert('Task completed! You earned 1.00 BANANAS31');
-                        }
-                    }, 2000);
-                });
-            }
+            button.addEventListener('click', function() {
+                const channel = this.parentElement.querySelector('.task-channel').textContent;
+                window.open(`https://t.me/${channel.replace('@', '')}`, '_blank');
+                
+                setTimeout(() => {
+                    if (confirm('Have you joined the channel?')) {
+                        alert('Task completed! You earned 1.00 BANANAS31');
+                    }
+                }, 2000);
+            });
+        });
+
+        // Referral button
+        document.querySelector('.refer-button').addEventListener('click', function() {
+            alert('Referral system will open soon');
         });
 
         // Initialize app
