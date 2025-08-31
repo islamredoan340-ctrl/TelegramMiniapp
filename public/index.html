@@ -29,7 +29,7 @@
             flex-direction: column;
         }
         
-        /* Correct Header Style like screenshot */
+        /* Header Style */
         .header {
             background: white;
             padding: 15px 20px;
@@ -117,8 +117,14 @@
             color: #000;
         }
         
+        .day-item.completed {
+            background: #28a745;
+            color: white;
+        }
+        
         .day-item.future {
             background: #6c757d;
+            color: white;
         }
         
         .checkin-button {
@@ -163,19 +169,16 @@
             margin-bottom: 15px;
         }
         
-        .ad-placeholder {
+        #monetag-ad-container {
             width: 100%;
-            height: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 250px;
+            background: #fff;
             border-radius: 8px;
+            margin: 15px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            margin: 15px 0;
-            flex-direction: column;
-            gap: 10px;
+            border: 1px solid #ddd;
         }
         
         .ad-timer {
@@ -186,7 +189,7 @@
         }
         
         .complete-button {
-            background: #28a745;
+            background: #dc3545;
             color: white;
             border: none;
             padding: 12px 25px;
@@ -199,6 +202,19 @@
         .complete-button:disabled {
             background: #6c757d;
             cursor: not-allowed;
+        }
+        
+        .claim-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            margin: 15px 0;
         }
         
         .refer-section {
@@ -231,7 +247,7 @@
             font-weight: bold;
         }
         
-        /* Navigation at the BOTTOM */
+        /* Navigation */
         .nav {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -240,11 +256,6 @@
             border-top: 1px solid #ddd;
             font-size: 11px;
             text-align: center;
-            position: sticky;
-            bottom: 0;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
         }
         
         .nav-button {
@@ -273,11 +284,18 @@
         .hidden {
             display: none;
         }
+        
+        .loading {
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Correct Header like screenshot -->
+        <!-- Header -->
         <div class="header">
             <div class="user-info">
                 <div class="user-name">Nayem Islam</div>
@@ -294,45 +312,40 @@
             <div class="section">
                 <div class="section-title">Daily Check-in Bonus</div>
                 <div class="section-subtitle">Claim your daily reward and keep your streak!</div>
-
-                <div class="days-container">
-                    <div class="day-item current">Day 1</div>
-                    <div class="day-item future">Day 2</div>
-                    <div class="day-item future">Day 3</div>
-                    <div class="day-item future">Day 4</div>
-                    <div class="day-item future">Day 5</div>
-                    <div class="day-item future">Day 6</div>
-                    <div class="day-item future">Day 7</div>
-                    <div class="day-item future">Day 15</div>
-                    <div class="day-item future">Day 17</div>
-                    <div class="day-item future">Day 20</div>
+                
+                <div class="days-container" id="daysContainer">
+                    <!-- Days will be populated by JavaScript -->
                 </div>
                 
-                <!-- Check-in Button (Visible initially) -->
+                <!-- Check-in Button -->
                 <button class="checkin-button" id="checkinButton">
                     <i class="bi bi-calendar-check"></i>
                     Daily Check In
                 </button>
                 
-                <!-- Wait Message (Hidden initially) -->
+                <!-- Wait Message -->
                 <div class="wait-message hidden" id="waitMessage">
                     <i class="bi bi-clock"></i>
                     Wait For Next Day
                 </div>
                 
-                <!-- Ad Container (Hidden initially) -->
+                <!-- Ad Container -->
                 <div class="ad-container hidden" id="adContainer">
                     <div class="ad-title">Watch Ad to Claim Your Reward</div>
-                    <div class="ad-placeholder">
-                        <div style="font-size: 24px;">📺</div>
-                        <div>Monetag Advertisement</div>
-                        <div style="font-size: 12px; color: #e0e0e0;">Loading your ad...</div>
+                    <div id="monetag-ad-container">
+                        <div class="loading">Loading advertisement...</div>
                     </div>
                     <div class="ad-timer" id="adTimer">30 seconds remaining</div>
                     <button class="complete-button" id="completeAdButton" disabled>
                         Complete Ad Viewing
                     </button>
                 </div>
+
+                <!-- Claim Reward Button -->
+                <button class="claim-button hidden" id="claimButton">
+                    <i class="bi bi-gift"></i>
+                    Claim Day 1 Reward (5 BANANAS31)
+                </button>
             </div>
 
             <!-- Referral Section -->
@@ -346,7 +359,7 @@
             </div>
         </main>
 
-        <!-- Navigation at the BOTTOM -->
+        <!-- Navigation -->
         <nav class="nav">
             <button class="nav-button active">
                 <i class="bi bi-house nav-icon"></i>
@@ -377,8 +390,34 @@
 
     <script>
         let userBalance = 343;
+        let currentDay = 1;
         let canCheckIn = true;
         let adTimerInterval;
+        let monetagLoaded = false;
+
+        // Initialize the app
+        function initApp() {
+            initTelegram();
+            setupDays();
+            checkDailyStatus();
+            setupCheckInSystem();
+            loadMonetagSDK();
+        }
+
+        // Setup days grid
+        function setupDays() {
+            const daysContainer = document.getElementById('daysContainer');
+            const days = [1, 2, 3, 4, 5, 6, 7, 15, 17, 20];
+            
+            daysContainer.innerHTML = days.map(day => {
+                let className = 'day-item';
+                if (day === currentDay) className += ' current';
+                else if (day < currentDay) className += ' completed';
+                else className += ' future';
+                
+                return <div class="${className}">Day ${day}</div>;
+            }).join('');
+        }
 
         // Telegram WebApp initialization
         function initTelegram() {
@@ -395,40 +434,66 @@
             }
         }
 
-        // Load Monetag Ads
-        function loadMonetagAd() {
-            // Create script element for Monetag
+        // Load Monetag SDK
+        function loadMonetagSDK() {
             const script = document.createElement('script');
             script.src = '//libtl.com/sdk.js';
             script.setAttribute('data-zone', '9801281');
-            script.setAttribute('data-sdk', 'show_9801281');
             script.async = true;
             
             script.onload = function() {
+                monetagLoaded = true;
                 console.log('Monetag SDK loaded successfully');
-                // Show actual ad
-                if (typeof show_9801281 === 'function') {
-                    const adContainer = document.querySelector('.ad-placeholder');
-                    adContainer.innerHTML = '';
-                    adContainer.style.background = 'transparent';
-                    show_9801281();
-                }
             };
             
             script.onerror = function() {
                 console.log('Failed to load Monetag SDK');
-                // Show fallback ad
-                const adContainer = document.querySelector('.ad-placeholder');
-                adContainer.innerHTML = 
-                    <div style="text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 10px;">🎥</div>
-                        <div style="font-weight: bold; margin-bottom: 5px;">Demo Advertisement</div>
-                        <div style="color: #666; font-size: 12px;">Watch this demo ad for 30 seconds</div>
-                    </div>
-                ;
             };
             
             document.head.appendChild(script);
+        }
+
+        // Show Monetag Ad
+        function showMonetagAd() {
+            return new Promise((resolve) => {
+                if (monetagLoaded && typeof show_9801281 === 'function') {
+                    try {
+                        // Clear ad container
+                        const adContainer = document.getElementById('monetag-ad-container');
+                        adContainer.innerHTML = '';
+                        
+                        // Show Monetag ad
+                        show_9801281();
+                        
+                        // Resolve after ad should be completed
+                        setTimeout(resolve, 30000);
+                    } catch (error) {
+                        console.log('Error showing Monetag ad:', error);
+                        showFallbackAd().then(resolve);
+                    }
+                } else {
+                    showFallbackAd().then(resolve);
+                }
+            });
+        }
+
+        // Fallback ad
+        function showFallbackAd() {
+            return new Promise((resolve) => {
+                const adContainer = document.getElementById('monetag-ad-container');
+                adContainer.innerHTML = 
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 24px; margin-bottom: 15px;">📺</div>
+                        <div style="font-weight: bold; margin-bottom: 10px; color: #333;">Monetag Advertisement</div>
+                        <div style="color: #666; margin-bottom: 15px;">Zone ID: 9801281</div>
+                        <div style="background: #667eea; color: white; padding: 10px; border-radius: 5px;">
+                            Please watch this ad
+                        </div>
+                    </div>
+                ;
+                
+                setTimeout(resolve, 30000);
+            });
         }
 
         // Daily Check-in System
@@ -438,17 +503,15 @@
             const adContainer = document.getElementById('adContainer');
             const adTimer = document.getElementById('adTimer');
             const completeAdButton = document.getElementById('completeAdButton');
+            const claimButton = document.getElementById('claimButton');
             
-            checkinButton.addEventListener('click', function() {
+            checkinButton.addEventListener('click', async function() {
                 if (canCheckIn) {
-                    // Hide check-in button, show ad
+                    // Step 1: Show ad
                     checkinButton.classList.add('hidden');
                     adContainer.classList.remove('hidden');
                     
-                    // Load Monetag ad
-                    loadMonetagAd();
-                    
-                    // Start ad timer
+                    // Step 2: Start timer
                     let seconds = 30;
                     adTimer.textContent = `${seconds} seconds remaining`;
                     completeAdButton.disabled = true;
@@ -460,47 +523,53 @@
                         if (seconds <= 0) {
                             clearInterval(adTimerInterval);
                             completeAdButton.disabled = false;
-                            completeAdButton.textContent = 'Claim Reward Now';
                         }
                     }, 1000);
+                    
+                    // Step 3: Show Monetag ad
+                    await showMonetagAd();
                 }
             });
             
             completeAdButton.addEventListener('click', function() {
-                if (!completeAdButton.disabled) {
-                    // Add reward to balance
-                    userBalance += 5;
-                    document.getElementById('balance').textContent = userBalance;
-                    
-                    // Hide ad, show wait message
-                    adContainer.classList.add('hidden');
-                    waitMessage.classList.remove('hidden');
-                    
-                    // Disable check-in for today
-                    canCheckIn = false;
-
-                    // Clear timer
-                    clearInterval(adTimerInterval);
-                    
-                    alert('✅ Daily check-in successful! You earned 5 BANANAS31');
-                    
-                    // Save check-in status
-                    localStorage.setItem('lastCheckIn', new Date().toDateString());
-                    localStorage.setItem('userBalance', userBalance);
-                }
+                // Step 4: Show claim button
+                adContainer.classList.add('hidden');
+                claimButton.classList.remove('hidden');
+            });
+            
+            claimButton.addEventListener('click', function() {
+                // Step 5: Claim reward
+                userBalance += 5;
+                document.getElementById('balance').textContent = userBalance;
+                currentDay++;
+                setupDays();
+                
+                // Step 6: Show wait message
+                claimButton.classList.add('hidden');
+                waitMessage.classList.remove('hidden');
+                canCheckIn = false;
+                
+                // Save state
+                localStorage.setItem('lastCheckIn', new Date().toDateString());
+                localStorage.setItem('currentDay', currentDay);
+                localStorage.setItem('userBalance', userBalance);
+                
+                alert('✅ Day 1 completed! You earned 5 BANANAS31');
             });
         }
 
-        // Check if user already checked in today
+        // Check daily status
         function checkDailyStatus() {
             const lastCheckIn = localStorage.getItem('lastCheckIn');
             const today = new Date().toDateString();
+            const savedDay = localStorage.getItem('currentDay');
             const savedBalance = localStorage.getItem('userBalance');
             
-            if (savedBalance) {
-                userBalance = parseInt(savedBalance);
-                document.getElementById('balance').textContent = userBalance;
-            }
+            if (savedDay) currentDay = parseInt(savedDay);
+            if (savedBalance) userBalance = parseInt(savedBalance);
+            
+            document.getElementById('balance').textContent = userBalance;
+            setupDays();
             
             if (lastCheckIn === today) {
                 canCheckIn = false;
@@ -509,35 +578,8 @@
             }
         }
 
-        // Profile button click
-        document.querySelector('.profile-button').addEventListener('click', function() {
-            document.querySelectorAll('.nav-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector('.nav-button:last-child').classList.add('active');
-        });
-
-        // Navigation functionality
-        document.querySelectorAll('.nav-button').forEach(button => {
-            button.addEventListener('click', function() {
-                document.querySelectorAll('.nav-button').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // Referral button
-        document.querySelector('.refer-button').addEventListener('click', function() {
-            alert('Referral system will open soon');
-        });
-
         // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            initTelegram();
-            checkDailyStatus();
-            setupCheckInSystem();
-        });
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
