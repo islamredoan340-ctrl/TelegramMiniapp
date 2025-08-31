@@ -165,49 +165,6 @@
             font-weight: bold;
         }
         
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .task-info {
-            flex: 1;
-        }
-        
-        .task-channel {
-            font-weight: bold;
-            color: #333;
-            font-size: 14px;
-        }
-        
-        .task-description {
-            color: #666;
-            font-size: 12px;
-            margin: 3px 0;
-        }
-        
-        .task-reward {
-            color: #28a745;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .task-button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
         /* Navigation at the BOTTOM */
         .nav {
             display: grid;
@@ -261,7 +218,7 @@
             </button>
         </div>
 
-        <!-- Main Content -->
+        <!-- Main Content - ONLY Daily Check-in and Referral -->
         <main class="main-content">
             <!-- Daily Check-in Section -->
             <div class="section">
@@ -287,7 +244,7 @@
                 </div>
             </div>
 
-           <!-- Referral Section -->
+            <!-- Referral Section -->
             <div class="refer-section">
                 <div class="refer-title">Invite Friends & Earn</div>
                 <div class="refer-subtitle">Get 20% of their earnings</div>
@@ -297,46 +254,7 @@
                 </button>
             </div>
 
-            <!-- Telegram Tasks Section -->
-            <div class="section">
-                <div class="section-title">Telegram Tasks</div>
-                
-                <div class="task-item">
-                    <div class="task-info">
-                        <div class="task-channel">@EARNING25M</div>
-                        <div class="task-description">Join channel to earn</div>
-                        <div class="task-reward">1.00 BANANAS31</div>
-                    </div>
-                    <button class="task-button">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        Join
-                    </button>
-                </div>
-                
-                <div class="task-item">
-                    <div class="task-info">
-                        <div class="task-channel">@oimbd</div>
-                        <div class="task-description">Join channel to earn</div>
-                        <div class="task-reward">1.00 BANANAS31</div>
-                    </div>
-                    <button class="task-button">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        Join
-                    </button>
-                </div>
-                
-                <div class="task-item">
-                    <div class="task-info">
-                        <div class="task-channel">@Bot_income_snt</div>
-                        <div class="task-description">Join channel to earn</div>
-                        <div class="task-reward">1.00 BANANAS31</div>
-                    </div>
-                    <button class="task-button">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        Join
-                    </button>
-                </div>
-            </div>
+            <!-- NO Telegram Tasks Section Here -->
         </main>
 
         <!-- Navigation at the BOTTOM -->
@@ -392,7 +310,7 @@
             document.querySelector('.nav-button:last-child').classList.add('active');
             alert('Opening profile section...');
         });
-        
+
         // Navigation functionality
         document.querySelectorAll('.nav-button').forEach(button => {
             button.addEventListener('click', function() {
@@ -400,23 +318,12 @@
                     btn.classList.remove('active');
                 });
                 this.classList.add('active');
-            });
-        });
-
-        // Task completion
-        document.querySelectorAll('.task-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const channel = this.parentElement.querySelector('.task-channel').textContent;
-                window.open(`https://t.me/${channel.replace('@', '')}`, '_blank');
                 
-                setTimeout(() => {
-                    if (confirm('Have you joined the channel?')) {
-                        const balanceElement = document.querySelector('.balance');
-                        const currentBalance = parseInt(balanceElement.textContent.split(': ')[1]);
-                        balanceElement.textContent = `Balance: ${currentBalance + 1} BANANAS31`;
-                        alert('Task completed! You earned 1.00 BANANAS31');
-                    }
-                }, 2000);
+                // Show content based on navigation
+                const section = this.textContent.trim();
+                if (section === 'TG Tasks') {
+                    alert('Telegram Tasks section will open soon');
+                }
             });
         });
 
