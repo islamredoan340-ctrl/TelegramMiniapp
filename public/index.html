@@ -7,8 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Bootstrap Icons CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- Monetag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='9801281' data-sdk='show_9801281'></script>
     <style>
         * {
             margin: 0;
@@ -165,15 +163,19 @@
             margin-bottom: 15px;
         }
         
-        #monetag-ad-container {
+        .ad-placeholder {
             width: 100%;
-            min-height: 250px;
-            background: #fff;
+            height: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 8px;
-            margin: 15px 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 15px 0;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .ad-timer {
@@ -271,11 +273,6 @@
         .hidden {
             display: none;
         }
-        
-        .loading {
-            color: #666;
-            font-style: italic;
-        }
     </style>
 </head>
 <body>
@@ -297,14 +294,14 @@
             <div class="section">
                 <div class="section-title">Daily Check-in Bonus</div>
                 <div class="section-subtitle">Claim your daily reward and keep your streak!</div>
-                
+
                 <div class="days-container">
-                    <div class="day-item">Day 1</div>
-                    <div class="day-item">Day 2</div>
-                    <div class="day-item">Day 3</div>
-                    <div class="day-item">Day 4</div>
-                    <div class="day-item">Day 5</div>
-                    <div class="day-item current">Day 6</div>
+                    <div class="day-item current">Day 1</div>
+                    <div class="day-item future">Day 2</div>
+                    <div class="day-item future">Day 3</div>
+                    <div class="day-item future">Day 4</div>
+                    <div class="day-item future">Day 5</div>
+                    <div class="day-item future">Day 6</div>
                     <div class="day-item future">Day 7</div>
                     <div class="day-item future">Day 15</div>
                     <div class="day-item future">Day 17</div>
@@ -326,10 +323,12 @@
                 <!-- Ad Container (Hidden initially) -->
                 <div class="ad-container hidden" id="adContainer">
                     <div class="ad-title">Watch Ad to Claim Your Reward</div>
-                    <div id="monetag-ad-container">
-                        <div class="loading">Loading advertisement...</div>
+                    <div class="ad-placeholder">
+                        <div style="font-size: 24px;">📺</div>
+                        <div>Monetag Advertisement</div>
+                        <div style="font-size: 12px; color: #e0e0e0;">Loading your ad...</div>
                     </div>
-                    <div class="ad-timer" id="adTimer">Please watch the ad for 30 seconds</div>
+                    <div class="ad-timer" id="adTimer">30 seconds remaining</div>
                     <button class="complete-button" id="completeAdButton" disabled>
                         Complete Ad Viewing
                     </button>
@@ -379,7 +378,6 @@
     <script>
         let userBalance = 343;
         let canCheckIn = true;
-        let adCompleted = false;
         let adTimerInterval;
 
         // Telegram WebApp initialization
@@ -397,33 +395,49 @@
             }
         }
 
-        // Initialize Monetag Ads
-        function initMonetagAds() {
-            if (typeof show_9801281 !== 'undefined') {
-                // Monetag SDK is loaded
+        // Load Monetag Ads
+        function loadMonetagAd() {
+            // Create script element for Monetag
+            const script = document.createElement('script');
+            script.src = '//libtl.com/sdk.js';
+            script.setAttribute('data-zone', '9801281');
+            script.setAttribute('data-sdk', 'show_9801281');
+            script.async = true;
+            
+            script.onload = function() {
                 console.log('Monetag SDK loaded successfully');
-            } else {
-                console.log('Monetag SDK not loaded, using fallback');
-                // Fallback ad system
-                const adContainer = document.getElementById('monetag-ad-container');
+                // Show actual ad
+                if (typeof show_9801281 === 'function') {
+                    const adContainer = document.querySelector('.ad-placeholder');
+                    adContainer.innerHTML = '';
+                    adContainer.style.background = 'transparent';
+                    show_9801281();
+                }
+            };
+            
+            script.onerror = function() {
+                console.log('Failed to load Monetag SDK');
+                // Show fallback ad
+                const adContainer = document.querySelector('.ad-placeholder');
                 adContainer.innerHTML = 
-                    <div style="padding: 20px; text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 10px;">📺</div>
-                        <div style="font-weight: bold; margin-bottom: 10px;">Advertisement</div>
-                        <div style="color: #666;">Please watch this ad to continue</div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">🎥</div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">Demo Advertisement</div>
+                        <div style="color: #666; font-size: 12px;">Watch this demo ad for 30 seconds</div>
                     </div>
                 ;
-            }
+            };
+            
+            document.head.appendChild(script);
         }
 
-        // Daily Check-in System with Real Ads
+        // Daily Check-in System
         function setupCheckInSystem() {
             const checkinButton = document.getElementById('checkinButton');
             const waitMessage = document.getElementById('waitMessage');
             const adContainer = document.getElementById('adContainer');
             const adTimer = document.getElementById('adTimer');
             const completeAdButton = document.getElementById('completeAdButton');
-            const monetagAdContainer = document.getElementById('monetag-ad-container');
             
             checkinButton.addEventListener('click', function() {
                 if (canCheckIn) {
@@ -432,34 +446,28 @@
                     adContainer.classList.remove('hidden');
                     
                     // Load Monetag ad
-                    try {
-                        if (typeof show_9801281 === 'function') {
-                            show_9801281();
-                        }
-                    } catch (error) {
-                        console.log('Error loading Monetag ad:', error);
-                    }
+                    loadMonetagAd();
                     
                     // Start ad timer
                     let seconds = 30;
-                    adTimer.textContent = `Please watch the ad for ${seconds} seconds`;
+                    adTimer.textContent = `${seconds} seconds remaining`;
+                    completeAdButton.disabled = true;
                     
                     adTimerInterval = setInterval(() => {
                         seconds--;
-                        adTimer.textContent = `Please watch the ad for ${seconds} seconds`;
+                        adTimer.textContent = `${seconds} seconds remaining`;
                         
                         if (seconds <= 0) {
                             clearInterval(adTimerInterval);
                             completeAdButton.disabled = false;
                             completeAdButton.textContent = 'Claim Reward Now';
-                            adCompleted = true;
                         }
                     }, 1000);
                 }
             });
             
             completeAdButton.addEventListener('click', function() {
-                if (adCompleted) {
+                if (!completeAdButton.disabled) {
                     // Add reward to balance
                     userBalance += 5;
                     document.getElementById('balance').textContent = userBalance;
@@ -470,15 +478,15 @@
                     
                     // Disable check-in for today
                     canCheckIn = false;
-                    adCompleted = false;
-                    
+
                     // Clear timer
                     clearInterval(adTimerInterval);
                     
                     alert('✅ Daily check-in successful! You earned 5 BANANAS31');
                     
-                    // Save check-in status to localStorage
+                    // Save check-in status
                     localStorage.setItem('lastCheckIn', new Date().toDateString());
+                    localStorage.setItem('userBalance', userBalance);
                 }
             });
         }
@@ -487,6 +495,12 @@
         function checkDailyStatus() {
             const lastCheckIn = localStorage.getItem('lastCheckIn');
             const today = new Date().toDateString();
+            const savedBalance = localStorage.getItem('userBalance');
+            
+            if (savedBalance) {
+                userBalance = parseInt(savedBalance);
+                document.getElementById('balance').textContent = userBalance;
+            }
             
             if (lastCheckIn === today) {
                 canCheckIn = false;
@@ -521,7 +535,6 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             initTelegram();
-            initMonetagAds();
             checkDailyStatus();
             setupCheckInSystem();
         });
